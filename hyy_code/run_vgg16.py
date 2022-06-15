@@ -210,6 +210,7 @@ if(__name__=='__main__'):
             loss.backward()
             optimizer.step()
         scheduler.step(avg_loss)
+        torch.save(model, 'temp_models/epoch%d'%(epoch))
 
     end_time = time.time()
     print('train time: ', start_time - end_time)
