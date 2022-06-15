@@ -13,9 +13,10 @@ test_set = Ddataset(x_test, y_test)
 testLoader = torch.utils.data.DataLoader(dataset=test_set, batch_size=BATCH_SIZE, shuffle=False)
 
 
-model = VGG16(n_classes=25)
+# model = VGG16(n_classes=25)
+model = torch.load('temp_models/epoch0.pth')
 model.cuda()
-model.load_state_dict(torch.load('cnn.pkl'))
+# model.load_state_dict(torch.load('cnn.pkl'))
 
 
 model.eval()
@@ -29,4 +30,5 @@ for images, labels in testLoader:
     total += labels.size(0)
     correct += (predicted.cpu() == labels).sum()
     # print(predicted, labels, correct, total)
-    print("avg acc: %f" % (100* correct/total))
+    
+print("avg acc: %f" % (100* correct/total))
