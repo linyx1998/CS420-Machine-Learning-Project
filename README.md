@@ -134,11 +134,11 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 以20轮训练为例，我们记录了分类器在训练过程中的模型在训练集上的准确率和在评估集上的准确率，结果如下图所示：
 
-<img src=".\lyx_code\pics\resnet18.png" alt="resnet18"/>
+<img src="./lyx_code/pics/resnet18.png" alt="resnet18" style="zoom:60%;" />
 
-<img src=".\lyx_code\pics\resnet34.png" alt="resnet34"/>
+<img src="./lyx_code/pics/resnet34.png" alt="resnet34" style="zoom:60%;" />
 
-<img src=".\lyx_code\pics\resnet50.png" alt="resnet50"/>
+<img src="./lyx_code/pics/resnet50.png" alt="resnet50" style="zoom:60%;" />
 
 从图中可以看出，随着训练轮数的增加，上述三个网络在训练集上的分类准确率均会稳定增加，但在第5、6轮后，上述三个网络在评估集上的分类准确率都发生了一定程度的下降，并且没有回升的征兆；在50轮训练的过程中模型分类准确率存在类似的趋势，此处不另外绘图。从图片下方的表格中可以看出，在有限轮数的训练下，层数越深的ReNet网络可以获得更高的训练准确率和评估准确率，但是在评估集上分类的准确率差异比在训练集上要小许多。
 
