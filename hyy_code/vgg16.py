@@ -50,10 +50,10 @@ class VGG16(tnn.Module):
         super(VGG16, self).__init__()
 
         # Conv blocks (BatchNorm + ReLU activation added in each block)
-        self.layer1 = vgg_conv_block([1,64], [64,64], [3,3], [1,1], 2, 2)
+        self.layer1 = vgg_conv_block([1,64], [64,64], [3,3], [1,1], 2, 2,withpool=False)
         self.layer2 = vgg_conv_block([64,128], [128,128], [3,3], [1,1], 2, 2)
         self.layer3 = vgg_conv_block([128,256,256], [256,256,256], [3,3,3], [1,1,1], 2, 2,withpool=False)
-        self.layer4 = vgg_conv_block([256,512,512], [512,512,512], [3,3,3], [1,1,1], 2, 2,withpool=False)
+        self.layer4 = vgg_conv_block([256,512,512], [512,512,512], [3,3,3], [1,1,1], 2, 2)
         self.layer5 = vgg_conv_block([512,512,512], [512,512,512], [3,3,3], [1,1,1], 2, 2,withpool=False)
 
         # FC layers
