@@ -1,6 +1,6 @@
 # 手绘草图分类问题
 
-##### 林宇欣：220030910004， 胡屹垚：220030910016， 王祎雯：220030910002
+林宇欣：220030910004， 胡屹垚：220030910016， 王祎雯：220030910002
 
 [TOC]
 
@@ -38,7 +38,11 @@
 
 ​		一个很朴素的想法是，若较深的网络层能够直接复制浅层网络习得的特征，那么即便深度网络没有办法在训练过程中获得更多的长进，也至少不会发生退化。基于这样的假设，ResNet网络在VGG网络的基础上做出了一些改进，也即通过引入了一个系列的残差单元来构造一种短路连接；它将深层网络的输出与浅层网络的输出（也即残差单元的输入）相加，让这个单元在输入特征基础上学习新的特征。残差单元的构造如下：
 
-<img src="./lyx_code/pics/1.png" alt="1" style="zoom:80%;" />
+<center>
+    <img src="./lyx_code/pics/1.png" alt="1" style="zoom:80%;" />
+    <br>
+    <b>图4-1</b> 残差单元
+</center>
 
 ​		其中，$x$代表残差单元的输入，$F(x)$代表单元中最深层网络的输出，也即残差；残差单元的输出为$F(x)+x$，也即网络在该层上学习得到的特征。残差一般较小，在这个结构下传播的梯度也不容易消失，因此学习起来较为容易，即便构建很深的网络也不会轻易产生性能下降的问题。
 
@@ -46,7 +50,7 @@
 
 #### VGGNet
 
-​		VGGNet是由牛津大学VGG组提出的深度神经网络，它的主要工作是在AlexNet的基础上，通过更小的卷积核和更多的卷积层代替较大的卷积核，从而增加网络的深度。可以得到证明的是，多个堆积的小卷积核可以代替大卷积核，与此同时引入的更多非线性层可以保证学习更复杂的模式，而且参数数量可以得到控制。VGG神经网络的构造形式见表：
+​		VGGNet是由牛津大学VGG组提出的深度神经网络，它的主要工作是在AlexNet的基础上，通过更小的卷积核和更多的卷积层代替较大的卷积核，从而增加网络的深度[5]。可以得到证明的是，多个堆积的小卷积核可以代替大卷积核，与此同时引入的更多非线性层可以保证学习更复杂的模式，而且参数数量可以得到控制。VGG神经网络的构造形式见表：
 
 <img src="./hyy_code/pics/image-20220616130013987.png" alt="image-20220616130013987" style="zoom: 67%;" />
 
@@ -84,11 +88,17 @@ def conv_layer(C_in, c_out, k, p):
 
 ​		首先我们从每个分类下的动物中抽取了500张图片进行混合生成了大小为5000的训练集，用于确定SVM模型的最佳参数。我们测试了不同的惩罚项系数C，和两种不同的核函数，其训练结果如下图所示。从图中可以看出，线性SVM在不同惩罚项系数下的准确率几乎没有差别，可以认为线性SVM在该分类任务中的效果非常差，而rbf核在C=1时取得了最高的准确率0.476256。因此后续关于训练集大小的实验中我们采用了这组超参数。
 
-<img src=".\wyw_code\figs\SVM-C-Kernel.png" alt="SVM-C-Kernel" style="zoom: 67%;" />
+<center>
+    <img src=".\wyw_code\figs\SVM-C-Kernel.png" alt="SVM-C-Kernel" style="zoom: 67%;" /><br>
+    <b>图5-1</b> SVM不同参数表现
+</center>
 
 ​		其次，我们按照上述相同的方法，分别从每个分类下的动物中抽取了100，500，1000，2000，5000个样本混合组成了训练集进行训练和测试，其训练结果如下图所示。从图中可以看出，SVM的准确率在随着训练集的增大而增大，因此可以推测当内存和算力足够时，SVM的准确率可以达到高于**59.74%**的效果。但是需要注意的是，当训练集样本的增多，训练时长也在快速增长，并且这个增长并不是线性的。
 
-<img src=".\wyw_code\figs\SVM Trainset Size.png" alt="SVM Trainset Size" style="zoom: 67%;" />
+<center>
+    <img src=".\wyw_code\figs\SVM Trainset Size.png" alt="SVM Trainset Size" style="zoom: 67%;" /><br>
+    <b>图5-2</b>   SVM training time
+</center>
 
 #### KNN
 
@@ -104,7 +114,10 @@ def conv_layer(C_in, c_out, k, p):
 
 ​		其次，我们按照上述相同的方法，分别从每个分类下的动物中抽取了100，500，1000，2000，5000，10000个样本混合组成了训练集进行训练和测试，其训练结果如下图所示。从下图中可以看出，KNN的准确率在随着训练样本的增多而增大，因此可以合理推断，在内存足够时，KNN的准确率可以达到高于**45.48%**的效果。同时，与SVM相比，KNN的运行时间明显更短，并且其时间是随着训练集样本数量线性增长的。虽然KNN相比SVM的分类效果更差，但是在考虑运行时间成本上，KNN具有好的表现。
 
-<img src=".\wyw_code\figs\KNN Trainset Size.png" alt="KNN Trainset Size" style="zoom:67%;" />
+<center>
+    <img src=".\wyw_code\figs\KNN Trainset Size.png" alt="KNN Trainset Size" style="zoom:67%;" /><br>
+    <b>图5-3</b> KNN training time
+</center>
 
 #### MLP
 
@@ -112,7 +125,10 @@ def conv_layer(C_in, c_out, k, p):
 
 ​		首先，我们对单隐层不同宽度的MLP网络在不同迭代轮次下的性能进行了测试。考虑到MLP运行结果的不稳定性，我们的测试结果是重复3次运行后的平均准确率。测试结果如下所示。从图中可以看出，随着网络宽度的加深，MLP的准确率在提高，但是可以可以看出，每增加100个神经元，每次模型准确率的提升在减少。除此之外，可以看出模型的准确率随着迭代轮次的增加在上下震荡，因此后续实验中考虑采用最少的5000轮进行迭代。
 
-<img src=".\wyw_code\figs\MLP width.png" alt="MLP width" style="zoom:67%;" />
+<center>
+    <img src=".\wyw_code\figs\MLP width.png" alt="MLP width" style="zoom:67%;" /><br>
+    <b>图5-4</b> MLP accuracy
+</center>
 
 ​		其次我们测试了隐层每层500个神经元的情况下，存在1层，2层和3层隐层的网络效果，其结果如下表所示。可以看出在两个隐层为500时，准确率最高只有**29.02%**。MLP模型与SVM和KNN相比，效果更差。有部分原因是复杂的网络模型需要更大量的样本进行训练，但由于机器的限制，本项目只能支持MLP使用与SVM和KNN同等大小训练集进行训练。同时，MLP模型的输出结果并不稳定，经常会出现在测试集上的表现为随机选择的期望大小的正确率。此外，MLP的全连接结构并不能获取图像中空间有关的信息，因此整体网络结构并不适合此场景。
 
@@ -124,7 +140,10 @@ def conv_layer(C_in, c_out, k, p):
 
 ​		首先，我们采用了TSNE对原始数据进行了可视化，其可视化结果如下图所示。可以看出，对于25类的分类任务，将数据拉至2维后无法直观地看出同类样本的聚集。
 
-<img src=".\wyw_code\figure\原始数据的分布.png" alt="原始数据的分布" style="zoom:50%;" />
+<center>
+    <img src=".\wyw_code\figure\原始数据的分布.png" alt="原始数据的分布" style="zoom:50%;" /><br>
+    <b>图5-5</b> data distribution of original data
+</center>
 
 ​		其次，我们使用PCA，对数据进行降维，我们选择了0.999，0.99，0.9作为方差的阈值，对原始数据进行了降维，并使用分类结果较好的SVM和KNN进行分类，两个模型使用的参数均为上述实验中最优超参的参数，其分类结果如下表所示，PCA降维后的数据以及原始数据和PCA降维后数据的对比如下两图所示。可以看出，PCA通过筛选，能成功淘汰部分维度，但是降维后SVM和KNN的准确率均大幅度下降。同时，由TSNE的结果可以看出，PCA并未有效辅助分类，不同种类的样本依旧均匀地分散在空间中。因此可以认为，降维策略在手绘草图分类任务中并不适用。虽然手写数字和手绘草图在某些方面有一定的相似性，但是明显手写数字存在更高的规范性，样本之间的差异性更小，而手绘草图的样本差异性明显更大，分类数目也更多，因此使得PCA降维策略在两个数据集上起到了相反的作用。
 
@@ -136,9 +155,17 @@ def conv_layer(C_in, c_out, k, p):
 | 0.99     | 548      | 26.37%    | 11.43%    |
 | 0.9      | 308      | 26.51%    | 12.34%    |
 
-<img src=".\wyw_code\figure\PCA降维后的分布.png" alt="PCA降维后的分布" style="zoom:50%;" />
+<center>
+    <img src=".\wyw_code\figure\PCA降维后的分布.png" alt="PCA降维后的分布" style="zoom:50%;" /><br>
+    <b>图5-6</b> data distribution of PCA reduced data
+</center>
 
-<img src=".\wyw_code\figure\降维和未降维的数据.png" alt="降维和未降维的数据" style="zoom:50%;" />
+
+
+<center>
+    <img src=".\wyw_code\figure\降维和未降维的数据.png" alt="降维和未降维的数据" style="zoom:50%;" /><br>
+    <b>图5-7</b> TSNE of Original Data and Reduction Data
+</center>
 
 ### 深度学习模型
 
@@ -164,11 +191,24 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 ​		以20轮训练为例，我们记录了分类器在训练过程中的模型在训练集上的准确率和在评估集上的准确率，结果如下图所示：
 
-<img src="./lyx_code/pics/resnet18.png" alt="resnet18" style="zoom:60%;" />
+<center>
+    <img src="./lyx_code/pics/resnet18.png" alt="resnet18" style="zoom:60%;" /><br>
+    <b>图5-8</b> ResNet18 Training Accuracy
+</center>
 
-<img src="./lyx_code/pics/resnet34.png" alt="resnet34" style="zoom:60%;" />
 
-<img src="./lyx_code/pics/resnet50.png" alt="resnet50" style="zoom:60%;" />
+
+<center>
+    <img src="./lyx_code/pics/resnet34.png" alt="resnet34" style="zoom:60%;" /><br>
+    <b>图5-9</b> ResNet34 Training Accuracy
+</center>
+
+
+
+<center>
+    <img src="./lyx_code/pics/resnet50.png" alt="resnet50" style="zoom:60%;" /><br>
+    <b>图5-10</b> ResNet50 Training Accuracy
+</center>
 
 ​		从图中可以看出，随着训练轮数的增加，上述三个网络在训练集上的分类准确率均会稳定增加，但在第5、6轮后，上述三个网络在评估集上的分类准确率都发生了一定程度的下降，并且没有回升的征兆；在50轮训练的过程中模型分类准确率存在类似的趋势，此处不另外绘图。从图片下方的表格中可以看出，在有限轮数的训练下，层数越深的ResNet网络可以获得更高的训练准确率和评估准确率，但是在评估集上分类的准确率差异比在训练集上要小许多。
 
@@ -198,7 +238,7 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 #### VGGNet
 
-​		在本次实验中，我们使用PyTorch深度学习框架搭建了VGG16和VGG19网络，并进行了一些修改，增加了一些BN层，并且选择性的去掉了一些池化层。在搭建好网络类后，用`model = VGG19(n_classes=25)`即可创建模型。
+​		在本次实验中，我们使用PyTorch深度学习框架搭建了VGG16和VGG19网络，并在网络基础上进行了一些修改，增加了BN层，并且选择性的去掉了一些池化层。在搭建好网络类后，用`model = VGG19(n_classes=25)`即可创建模型。
 
 ​		为了保证实验的可重复性，参数需要固定而不是选择随机初始化。对于实验的设置方面，我们使用Adam作为优化器，mini batch的大小设置为64，初始学习率设置为0.001，并且使用ReduceLROnPlateau scheduler来动态调整学习率，即对平均loss进行监测，若若干次loss均保持较小差异，则降低学习率。
 
@@ -206,7 +246,12 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 ​		我们分别对VGG16和VGG19两种不同深度的网络进行了实验，我们记录了10轮训练的模型在验证集上的准确率，实验结果如下：
 
-<img src=".\hyy_code\pics\16and19.png" alt="16and19" style="zoom:67%;" />
+<center>
+    <img src=".\hyy_code\pics\16and19.png" alt="16and19" style="zoom:67%;" /><br>
+    <b>图5-11</b> VGG16 and VGG19 Training
+</center>
+
+
 
 ​		从图中可以看出，两个不同的网络在验证集上的分类准确率均先上升后下降最后稳定，而训练轮数等于4时，模型具有最好的性能，两个模型的最优性能差距很小。随着epoch的增大，模型显然出现了过拟合的现象。对比两个网络，VGG19具有更大的深度，出现过拟合后在验证集上的准确率也相对VGG16更低，即网络越复杂，越容易过拟合。
 
@@ -228,22 +273,22 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 ​		本项目中涉及的所有模型的最佳结果如下表所示：
 
 | 模型     | 训练集大小 | 准确率 |
-| -------- | ---------- | ------ |
-| SVM      | 5000*25    | 59.74% |
-| PCA-SVM  | 5000*25    | 26.51% |
-| KNN      | 10000*25   | 45.48% |
-| MLP      | 10000*25   | 29.02% |
-| ResNet18 | 70000*25   | 79.92% |
-| ResNet34 | 70000*25   | 80.19% |
-| ResNet50 | 70000*25   | 79.86% |
-| VGG16    | 70000*25   | 84.90% |
-| VGG19    | 70000*25   | 85.06% |
+| -------- | :--------: | ------ |
+| SVM      |  5000*25   | 59.74% |
+| PCA-SVM  |  5000*25   | 26.51% |
+| KNN      |  10000*25  | 45.48% |
+| MLP      |  10000*25  | 29.02% |
+| ResNet18 |  70000*25  | 79.92% |
+| ResNet34 |  70000*25  | 80.19% |
+| ResNet50 |  70000*25  | 79.86% |
+| VGG16    |  70000*25  | 84.90% |
+| VGG19    |  70000*25  | 85.06% |
 
 ​		从表中可以看出，传统的分类模型的表现并不理想，分类效果最好的SVM模型需要大量的内存以及长时间的计算，而运行更快的其他模型的准确率都低于50%。分析原因主要在于这些模型的输入是展平的特征，他们无法有效利用像素之间的空间信息进行分类，而对于手绘草图这样图像和纹理信息稀少的图片来说这些模型能够利用的信息就更加稀缺了。从TSNE可视化的结果也可以看出，虽然理论上手绘草图中存在大量留白空间，但PCA降维之后的样本聚集并没有实质性的加强，也能从侧面说明信息的稀缺而不是冗余。因此，我们认为这些传统模型在本项目场景中并不适用。
 
 ​		此外，虽然相对于传统的分类模型有质的飞跃，但ResNet网络的表现也存在难以逾越的天花板。分类效果最好的ResNet34模型对于学习率进行了一定程度上的微调，但相较于预训练模型对于评估集的分类准确率（约为78%），80.19%这个结果并没有显著的提升。我们认为最主要的原因是图片缺乏精确的细节且尺寸过小，ResNet的结构并没有办法精确地提取和学习图片的特征。在这样的前提下，ResNet网络为加深层数而设计的残差单元反而成为了负累，试图提取的特征越为复杂精细，模型在训练集上越容易出现过拟合。因此，我们认为ResNet网络在本项目场景中并不是最优选择。
 
-​		相比较ResNet，VGG网络的表现
+​		相比较ResNet，VGG网络的表现有一些提升。由于原图尺寸很小，仅为$28\times 28$的单通道灰度图像，ResNet的首层卷积核大小为7，显得有些过大了，从而导致丢失掉了很多信息，而VGGNet的3*3小卷积核更为合理一些，可以提取到更多结构上的信息，而不是深层网络得到的纹理信息，所以表现相对ResNet更好一些。
 
 ​		总体而言，本项目探索了以以像素图为输入的手绘草图分类任务的多种实现方式，并分析了各个模型的优点和不足。我们认为，想要提高模型的性能，一个可行的探索方向就是结合像素图信息和笔画顺序信息，或者对原始数据进行增强，但由于时间仓促，我们没能进一步探索更多改进的可能性。
 
@@ -263,4 +308,6 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 2. Li L , Zou C , Zheng Y , et al. Sketch-R2CNN: An RNN-Rasterization-CNN Architecture for Vector Sketch Recognition[J]. IEEE Transactions on Visualization and Computer Graphics, 2020, PP(99):1-1.
 3. Ha D ,  Eck D . A Neural Representation of Sketch Drawings[C], 2017.
 4. He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
+4. Simonyan, K., Zisserman, A. Very deep convolutional networks for large-scale image recognition[J]. arXiv preprint arXiv:1409.1556, 2014.
+6. Eitz M,Hays J,Alexa M. How do humans sketch objects?[J].ACM Transactions on Graphics,2012,31(4): 44:1-44:10
 
