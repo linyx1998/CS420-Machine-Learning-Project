@@ -3,5 +3,3 @@
 *.npz
 *.pth
 *.pyc
-*.pyc
-hyy_code/__pycache__/run_vgg16.cpython-36.pyc
