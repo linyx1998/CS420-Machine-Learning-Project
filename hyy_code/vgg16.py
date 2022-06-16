@@ -76,6 +76,37 @@ class VGG16(tnn.Module):
 
         return vgg16_features, out
 
+class VGG19(tnn.Module):
+    def __init__(self, n_classes=1000):
+        super(VGG19, self).__init__()
+
+        # Conv blocks (BatchNorm + ReLU activation added in each block)
+        self.layer1 = vgg_conv_block([1,64], [64,64], [3,3], [1,1], 2, 2,withpool=False)
+        self.layer2 = vgg_conv_block([64,128], [128,128], [3,3], [1,1], 2, 2)
+        self.layer3 = vgg_conv_block([128,256,256,256], [256,256,256,256], [3,3,3,3], [1,1,1,1], 2, 2,withpool=False)
+        self.layer4 = vgg_conv_block([256,512,512,512], [512,512,512,512], [3,3,3,3], [1,1,1,1], 2, 2)
+        self.layer5 = vgg_conv_block([512,512,512,512], [512,512,512,512], [3,3,3,3], [1,1,1,1], 2, 2,withpool=False)
+
+        # FC layers
+        self.layer6 = vgg_fc_layer(7*7*512, 4096)
+        self.layer7 = vgg_fc_layer(4096, 4096)
+
+        # Final layer
+        self.layer8 = tnn.Linear(4096, n_classes)
+
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        vgg19_features = self.layer5(out)
+        out = vgg19_features.view(out.size(0), -1)
+        out = self.layer6(out)
+        out = self.layer7(out)
+        out = self.layer8(out)
+
+        return vgg19_features, out
+
       
 # vgg16 = VGG16(n_classes=N_CLASSES)
 # vgg16.cuda()

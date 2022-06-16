@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from myRead import read_data
 from vgg16 import VGG16
+from vgg16 import VGG19
 
 
 
@@ -27,6 +28,119 @@ class Ddataset(Dataset):
 
 
 
+
+
+
+
+if(__name__=='__main__'):
+    # 超参 ##########################
+    device = torch.device("cuda")
+    BATCH_SIZE = 64
+    EPOCH = 10
+    LEARNING_RATE=0.001
+    #################################
+    data_reader = read_data(isone=False)
+    x_train, x_test, x_valid, y_train, y_test, y_valid = data_reader.get_data()
+    # print(x_train.shape)
+    print(type(x_train[0][0][0][0]))
+
+    train_set = Ddataset(x_train, y_train)
+    test_set = Ddataset(x_test, y_test)
+    valid_set = Ddataset(x_valid, y_valid)
+
+    trainLoader = torch.utils.data.DataLoader(dataset=train_set, batch_size=BATCH_SIZE, shuffle=True)
+    testLoader = torch.utils.data.DataLoader(dataset=test_set, batch_size=BATCH_SIZE, shuffle=False)
+
+
+    # 模型
+    model = VGG19(n_classes=25)
+    model.to(device)
+    # model.load_state_dict(torch.load('cnn.pkl'))
+    # Loss, Optimizer & Scheduler
+    cost = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,)
+
+    # 训练
+    start_time = time.time()
+    for epoch in range(EPOCH):
+
+        avg_loss = 0
+        cnt = 0
+        for images, labels in trainLoader:
+            images = images.to(device)
+            labels = labels.to(device)
+
+            # Forward + Backward + Optimize
+            optimizer.zero_grad()
+            _, outputs = model(images)
+            loss = cost(outputs, labels.long())
+            avg_loss += loss.item()
+            cnt += 1
+            print("[E: %d] loss: %f, avg_loss: %f" % (epoch, loss.item(), avg_loss/cnt))
+            loss.backward()
+            optimizer.step()
+        scheduler.step(avg_loss)
+        torch.save(model, 'temp_models/vgg19_epoch%d'%(epoch))
+
+    end_time = time.time()
+    print('train time: ', start_time - end_time)
+
+    # # Test the model
+
+    model.eval()
+    correct = 0
+    total = 0
+
+    for images, labels in testLoader:
+        images = images.cuda()
+        _, outputs = model(images)
+        _, predicted = torch.max(outputs.data, 1)
+        total += labels.size(0)
+        correct += (predicted.cpu() == labels).sum()
+        # print(predicted, labels, correct, total)
+        print("avg acc: %f" % (100* correct/total))
+
+    # Save the Trained Model
+    torch.save(model, 'cnn.pth')
+
+
+
+
+
+
+
+
+
+    # # 一些超参数的设定
+    # BATCH_SIZE = 1024
+    # # LAM = 0.05
+    # LAMS = [0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.75, 1, 1.5, 2]
+    # LAM = LAMS[0]
+    # EPOCHS = [1,5,10,15,20,50,100]
+    # EPOCH = 20
+    # LEARNING_RATE = 0.0001
+    # # SHUFFLE = True
+    # NUMS = 128
+
+    # START_WITH = 0
+
+    # lsss1 = []
+    # lsss2 = []
+    # accus = []
+    # for temp_lam in LAMS:
+    #     print("starting test lam: ", temp_lam)
+    #     accu, loss1, loss2 = main_train(BATCH_SIZE, temp_lam, EPOCH, LEARNING_RATE, NUMS, 0)
+    #     lsss1.append(loss1)
+    #     lsss2.append(loss2)
+    #     accus.append(accu)
+
+    # print(accus,lsss1,lsss2)
+    # plt.plot(LAMS, lsss1, label="Label loss")
+    # plt.plot(LAMS, lsss2, label="Domain loss")
+    # plt.xlabel("Lambda")
+    # plt.ylabel("Loss")
+    # plt.show()
 # # 训练
 # def train(fold, model, device, train_loader, optimizer, epoch, criterion1, criterion2):
 #     train_loss1 = 123
@@ -158,115 +272,3 @@ class Ddataset(Dataset):
 #     print("using TIME", end_time - start_time)
 
 #     return test_accuracy, np.array(loss1_list).mean(), np.array(loss2_list).mean()
-
-
-
-if(__name__=='__main__'):
-    # 超参 ##########################
-    device = torch.device("cuda")
-    BATCH_SIZE = 128
-    EPOCH = 10
-    LEARNING_RATE=0.001
-    #################################
-    data_reader = read_data(isone=False)
-    x_train, x_test, x_valid, y_train, y_test, y_valid = data_reader.get_data()
-    # print(x_train.shape)
-    print(type(x_train[0][0][0][0]))
-
-    train_set = Ddataset(x_train, y_train)
-    test_set = Ddataset(x_test, y_test)
-    valid_set = Ddataset(x_valid, y_valid)
-
-    trainLoader = torch.utils.data.DataLoader(dataset=train_set, batch_size=BATCH_SIZE, shuffle=True)
-    testLoader = torch.utils.data.DataLoader(dataset=test_set, batch_size=BATCH_SIZE, shuffle=False)
-
-
-    # 模型
-    model = VGG16(n_classes=25)
-    model.to(device)
-    model.load_state_dict(torch.load('cnn.pkl'))
-    # Loss, Optimizer & Scheduler
-    cost = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
-
-    # 训练
-    start_time = time.time()
-    for epoch in range(EPOCH):
-
-        avg_loss = 0
-        cnt = 0
-        for images, labels in trainLoader:
-            images = images.to(device)
-            labels = labels.to(device)
-
-            # Forward + Backward + Optimize
-            optimizer.zero_grad()
-            _, outputs = model(images)
-            loss = cost(outputs, labels.long())
-            avg_loss += loss.data
-            cnt += 1
-            print("[E: %d] loss: %f, avg_loss: %f" % (epoch, loss.data, avg_loss/cnt))
-            loss.backward()
-            optimizer.step()
-        scheduler.step(avg_loss)
-        torch.save(model, 'temp_models/epoch%d'%(epoch))
-
-    end_time = time.time()
-    print('train time: ', start_time - end_time)
-
-    # # Test the model
-
-    model.eval()
-    correct = 0
-    total = 0
-
-    for images, labels in testLoader:
-        images = images.cuda()
-        _, outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted.cpu() == labels).sum()
-        # print(predicted, labels, correct, total)
-        print("avg acc: %f" % (100* correct/total))
-
-    # Save the Trained Model
-    torch.save(model, 'cnn.pth')
-
-
-
-
-
-
-
-
-
-    # # 一些超参数的设定
-    # BATCH_SIZE = 1024
-    # # LAM = 0.05
-    # LAMS = [0.001, 0.01, 0.05, 0.1, 0.2, 0.5, 0.75, 1, 1.5, 2]
-    # LAM = LAMS[0]
-    # EPOCHS = [1,5,10,15,20,50,100]
-    # EPOCH = 20
-    # LEARNING_RATE = 0.0001
-    # # SHUFFLE = True
-    # NUMS = 128
-
-    # START_WITH = 0
-
-    # lsss1 = []
-    # lsss2 = []
-    # accus = []
-    # for temp_lam in LAMS:
-    #     print("starting test lam: ", temp_lam)
-    #     accu, loss1, loss2 = main_train(BATCH_SIZE, temp_lam, EPOCH, LEARNING_RATE, NUMS, 0)
-    #     lsss1.append(loss1)
-    #     lsss2.append(loss2)
-    #     accus.append(accu)
-
-    # print(accus,lsss1,lsss2)
-    # plt.plot(LAMS, lsss1, label="Label loss")
-    # plt.plot(LAMS, lsss2, label="Domain loss")
-    # plt.xlabel("Lambda")
-    # plt.ylabel("Loss")
-    # plt.show()
