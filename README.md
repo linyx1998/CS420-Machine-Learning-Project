@@ -196,6 +196,8 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 | 胡屹垚：220030910016 | 生成npz格式数据；完成VGG网络在数据集上的训练和测试；撰写报告 | 1/3    |
 | 王祎雯：220030910002 | 相关文献调研；生成npz格式数据；完成传统方法分类器在数据集上的训练和测试；撰写报告 | 1/3    |
 
+​		我们的源代码可以通过此链接克隆至本地：https://github.com/linyx1998/CS420-Machine-Learning-Project.git
+
 ## 7. 参考文献
 
 1. Yu Q ,  Yang Y ,  Liu F , et al. Sketch-a-Net: A Deep Neural Network that Beats Humans[J]. International Journal of Computer Vision, 2017, 122(3):411-425.
