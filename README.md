@@ -170,15 +170,21 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 ## 6. 总结与展望
 
-​		本项目中涉及的所有模型的最佳结果如下表所示。从下表中可以看出，传统的分类模型的表现并不理想，分类效果最好的SVM模型需要大量的内存以及长时间的计算，而运行更快的其他模型的准确率都低于50%。分析原因主要在于这些模型的输入是展平的特征，他们无法有效利用像素之间的空间信息进行分类，而对于手绘草图这样图像和纹理信息稀少的图片来说这些模型能够利用的信息就更加稀缺了。从TSNE可视化的结果也可以看出，虽然理论上手绘草图中存在大量留白空间，但PCA降维之后的样本聚集并没有实质性的加强，也能从侧面说明信息的稀缺而不是冗余。因此，我们认为这些传统模型在本项目场景中并不适用。
+​		本项目中涉及的所有模型的最佳结果如下表所示。
 
-| 模型    | 训练集大小 | 准确率 |
-| ------- | ---------- | ------ |
-| SVM     | 5000*25    | 59.74% |
-| PCA-SVM | 5000*25    | 26.51% |
-| KNN     | 10000*25   | 45.48% |
-| MLP     | 10000*25   | 29.02% |
-|         |            |        |
+| 模型     | 训练集大小 | 准确率 |
+| -------- | ---------- | ------ |
+| SVM      | 5000*25    | 59.74% |
+| PCA-SVM  | 5000*25    | 26.51% |
+| KNN      | 10000*25   | 45.48% |
+| MLP      | 10000*25   | 29.02% |
+| ResNet18 | 70000*25   | 79.92% |
+| ResNet34 | 70000*25   | 80.19% |
+| ResNet50 | 70000*25   | 79.86% |
+
+​		从表中可以看出，传统的分类模型的表现并不理想，分类效果最好的SVM模型需要大量的内存以及长时间的计算，而运行更快的其他模型的准确率都低于50%。分析原因主要在于这些模型的输入是展平的特征，他们无法有效利用像素之间的空间信息进行分类，而对于手绘草图这样图像和纹理信息稀少的图片来说这些模型能够利用的信息就更加稀缺了。从TSNE可视化的结果也可以看出，虽然理论上手绘草图中存在大量留白空间，但PCA降维之后的样本聚集并没有实质性的加强，也能从侧面说明信息的稀缺而不是冗余。因此，我们认为这些传统模型在本项目场景中并不适用。
+
+​		此外，虽然相对于传统的分类模型有质的飞跃，但ResNet网络的表现也存在难以逾越的天花板。分类效果最好的ResNet34模型对于学习率进行了一定程度上的微调，但相较于预训练模型对于评估集的分类准确率（约为78%），80.19%这个结果并没有显著的提升。我们认为最主要的原因是图片缺乏精确的细节且尺寸过小，ResNet的结构并没有办法精确地提取和学习图片的特征。在这样的前提下，ResNet网络为加深层数而设计的残差单元反而成为了负累，试图提取的特征越为复杂精细，模型在训练集上越容易出现过拟合。因此，我们认为ResNet网络在本项目场景中并不是最优选择。
 
 ​		总体而言，本项目探索了以以像素图为输入的手绘草图分类任务的多种实现方式，并分析了各个模型的优点和不足。我们认为，想要提高模型的性能，一个可行的探索方向就是结合像素图信息和笔画顺序信息，或者对原始数据进行增强，但由于时间仓促，我们没能进一步探索更多改进的可能性。
 
@@ -186,5 +192,6 @@ classifier.load_state_dict(torch.load('../pretrain_models/resnet18-5c106cde.pth'
 
 1. Yu Q ,  Yang Y ,  Liu F , et al. Sketch-a-Net: A Deep Neural Network that Beats Humans[J]. International Journal of Computer Vision, 2017, 122(3):411-425.
 2. Li L , Zou C , Zheng Y , et al. Sketch-R2CNN: An RNN-Rasterization-CNN Architecture for Vector Sketch Recognition[J]. IEEE Transactions on Visualization and Computer Graphics, 2020, PP(99):1-1.
-2. Ha D ,  Eck D . A Neural Representation of Sketch Drawings[C], 2017.
+3. Ha D ,  Eck D . A Neural Representation of Sketch Drawings[C], 2017.
+4. He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
 
